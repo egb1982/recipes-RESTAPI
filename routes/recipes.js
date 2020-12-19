@@ -41,14 +41,15 @@ router.put('/image/:id',async(req,res)=> {
 // DELETES a recipe
 router.delete('/:id', async (req, res)=>{
     try {
-        const recipe = await Recipe.findByIdAndDelete(req.params.id);
+        const recipe = await Recipe.findById(req.params.id);
         if (recipe.imagePath) {
             try {
-                await unlink(path.resolve('./server/public/'+ recipe.imagePath));
+                await unlink(path.resolve('./public/'+ recipe.imagePath));
             } catch (err) {
                 res.json(err);
             }
         }
+        await Recipe.findByIdAndDelete(req.params.id);
         res.json({message:'Recipe Deleted'});
     } catch (err) {
         res.json(err);
