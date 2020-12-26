@@ -11,6 +11,7 @@ router.get('/',async (req,res) => {
     const recipes = await Recipe.find();
     res.json(recipes);
 });
+
 //get ONE recipe from the server
 router.get('/:id',async (req,res) => {
     const recipe = await Recipe.findById(req.params.id);
