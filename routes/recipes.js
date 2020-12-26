@@ -27,7 +27,7 @@ router.post('/',async(req,res)=> {
 // UPDATE one recipe
 router.put('/:id',async(req,res)=>{
     const recipe = new Recipe(req.body);
-    await recipe.updateOne({_id:req.params.id},{$set:recipe});
+    await Recipe.findByIdAndUpdate(req.params.id,{$set:recipe});
     res.json({message: 'Recipe Updated'});
 });
 
