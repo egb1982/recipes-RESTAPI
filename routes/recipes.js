@@ -12,6 +12,15 @@ router.get('/',async (req,res) => {
     res.json(recipes);
 });
 
+// get Filtered recipes
+router.get('/search/:term', async (req,res) => {
+    const filter = new RegExp(req.params.term,'i');
+    const recipes = await Recipe.find({ 
+        $or: [ { name: { $regex: filter } },{ category: { $regex: filter } } ] 
+    });
+    res.json(recipes);
+});
+
 //get ONE recipe from the server
 router.get('/:id',async (req,res) => {
     const recipe = await Recipe.findById(req.params.id);
