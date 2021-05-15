@@ -1,8 +1,8 @@
 const {Router} = require('express');
 const router = Router();
-
 const path = require('path');
 const { unlink } = require('fs-extra');
+const sharp = require('sharp');
 
 const Recipe = require('../models/Recipe');
 
@@ -28,7 +28,7 @@ router.get('/:id',async (req,res) => {
 });
 
 // CREATES a new recipe
-router.post('/',async(req,res)=> {
+router.post('/',async(req,res)=> {    
     const newRecipe = new Recipe(req.body);
     const recipe = await newRecipe.save();
     res.json({message: 'Recipe Saved',recipe});
@@ -44,8 +44,20 @@ router.put('/:id',async(req,res)=>{
 //UPDATE RECIPE IMAGE
 router.put('/image/:id',async(req,res)=> {
     const imagePath = req.file ? '/uploads/' + req.file.filename : "";
-    await Recipe.updateOne({_id:req.params.id},{$set: {imagePath: imagePath}});
-    res.json({message: 'Recipe Image Updated'});
+    const recipeId = req.params.id;
+    const recipe = await Recipe.findById(recipeId);
+    sharp(req.file.path)
+    .resize({height:200})
+    .toBuffer()
+    .then(async data => {
+        let image = {data, contentType: req.file.contentType }
+        try {
+            await Recipe.updateOne({_id:recipeId},{$set: {imagePath: imagePath, image:image}});            
+            res.json({message:"Recipe Image Updated"});    
+        } catch (err){
+            res.json(err);
+        }
+    })
 });
 
 // DELETES a recipe
@@ -65,11 +77,5 @@ router.delete('/:id', async (req, res)=>{
         res.json(err);
     }
 });
-
-//get ingredients list
-// router.get('/ingredients/:term'), async (req,res)=>{
-//     const regexp = new RegExp (req.params.term,i);
-//     await Recipe.find({ingredients.name,regexp})
-// }
 
 module.exports = router;

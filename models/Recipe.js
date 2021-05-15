@@ -9,6 +9,10 @@ const StepSchema = new Schema({
     description: { type: String }
 });
 
+const ImageSchema = new Schema(
+    {data:Buffer, contentType: String}
+);
+
 const RecipeSchema = new Schema({
     name: { type: String, required: true },
     difficulty: { type: Number, required: true },
@@ -16,6 +20,8 @@ const RecipeSchema = new Schema({
     ingredients: [IngredientSchema],
     steps: [StepSchema],
     imagePath: { type: String },
+    imageId:{ type: String, unique:true},
+    image: ImageSchema,
     created: { type: Date, default: Date.now }
 });
 
