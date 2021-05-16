@@ -43,16 +43,16 @@ router.put('/:id',async(req,res)=>{
 
 //UPDATE RECIPE IMAGE
 router.put('/image/:id',async(req,res)=> {
-    const imagePath = req.file ? '/uploads/' + req.file.filename : "";
+    
     const recipeId = req.params.id;
-    const recipe = await Recipe.findById(recipeId);
     sharp(req.file.path)
-    .resize({height:200})
+    .resize({width:350, height:200})
     .toBuffer()
     .then(async data => {
         let image = {data, contentType: req.file.contentType }
         try {
-            await Recipe.updateOne({_id:recipeId},{$set: {imagePath: imagePath, image:image}});            
+            await Recipe.updateOne({_id:recipeId},{$set: {image:image}});
+            await unlink(path.resolve(req.file.path));  
             res.json({message:"Recipe Image Updated"});    
         } catch (err){
             res.json(err);
@@ -63,14 +63,6 @@ router.put('/image/:id',async(req,res)=> {
 // DELETES a recipe
 router.delete('/:id', async (req, res)=>{
     try {
-        const recipe = await Recipe.findById(req.params.id);
-        if (recipe.imagePath) {
-            try {
-                await unlink(path.resolve('./public/'+ recipe.imagePath));
-            } catch (err) {
-                res.json(err);
-            }
-        }
         await Recipe.findByIdAndDelete(req.params.id);
         res.json({message:'Recipe Deleted'});
     } catch (err) {
